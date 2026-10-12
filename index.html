@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌲 森林動物小夥伴：你的隱藏特質測驗與探索卡</title>
+    <style>
+        :root {
+            --bg-color: #FAF6EE;
+            --card-bg: #FFFFFF;
+            --primary-green: #5B8C5A;
+            --accent-orange: #E88D67;
+            --text-dark: #333333;
+            --text-muted: #666666;
+            --card-front-bg: #EBF3EA;
+            --card-back-bg: #FDF0EA;
+            --border-front: #A3C9A8;
+            --border-back: #F2B095;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            max-width: 800px;
+            width: 100%;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(91, 140, 90, 0.15);
+            border: 3px solid #E2D7C5;
+            margin-bottom: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            color: var(--primary-green);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #E0E0E0;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-green);
+            width: 16.6%;
+            transition: width 0.3s ease;
+        }
+
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2C4A2E;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #F8F5F0;
+            border: 2px solid #E5DFD3;
+            border-radius: 16px;
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover {
+            background-color: #EBF3EA;
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        /* 結果頁樣式 */
+        .result-card {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .result-card.active {
+            display: block;
+        }
+
+        .animal-icon {
+            font-size: 5rem;
+            margin-bottom: 10px;
+        }
+
+        .animal-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background-color: #FFF3E0;
+            color: var(--accent-orange);
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .section-box {
+            background-color: #F9F8F3;
+            border-radius: 16px;
+            padding: 18px;
+            margin: 14px 0;
+            text-align: left;
+            border-left: 5px solid var(--primary-green);
+        }
+
+        .section-box h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #2C4A2E;
+        }
+
+        .section-box p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #444444;
+        }
+
+        .restart-btn, .expand-btn {
+            margin-top: 20px;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s;
+        }
+
+        .restart-btn:hover, .expand-btn:hover {
+            background-color: #487047;
+            transform: translateY(-2px);
+        }
+
+        /* 特質探索卡區塊 */
+        .traits-section {
+            display: none;
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 20px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .traits-section.active {
+            display: block;
+        }
+
+        .traits-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .traits-header h2 {
+            color: var(--primary-green);
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .traits-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-green { width: 14px; height: 14px; background: var(--card-front-bg); border: 2px solid var(--border-front); border-radius: 4px; }
+        .dot-orange { width: 14px; height: 14px; background: var(--card-back-bg); border: 2px solid var(--border-back); border-radius: 4px; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            width: 100%;
+        }
+
+        /* 翻牌卡片動畫 */
+        .card-scene {
+            perspective: 800px;
+            height: 230px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .card-scene:hover .card-inner {
+            box-shadow: 0 6px 16px rgba(91, 140, 90, 0.15);
+        }
+
+        .card-scene.is-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 18px;
+            border-width: 3px;
+            border-style: solid;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card-front {
+            background-color: var(--card-front-bg);
+            border-color: var(--border-front);
+            color: #2C4A2E;
+        }
+
+        .card-back {
+            background-color: var(--card-back-bg);
+            border-color: var(--border-back);
+            color: #5D3728;
+            transform: rotateY(180deg);
+        }
+
+        .card-icon { font-size: 2rem; margin-top: 4px; }
+        .card-title { font-size: 1.15rem; font-weight: bold; margin: 6px 0 4px 0; }
+        .card-desc { font-size: 0.85rem; color: #555; line-height: 1.4; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .card-hint { font-size: 0.75rem; color: #888; }
+
+        .card-back .card-title { color: var(--accent-orange); }
+        .card-back .card-desc { color: #7E5B4C; }
+
+        .action-bar {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <!-- 標頭 -->
+    <div class="header">
+        <h1>🌲 森林動物小夥伴</h1>
+        <p>探索你的隱藏人格特質測驗</p>
+    </div>
+
+    <!-- 進度條 -->
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- 題目區域 -->
+    <div id="quizSection"></div>
+
+    <!-- 結果區域 -->
+    <div class="result-card" id="resultSection">
+        <div class="animal-icon" id="resIcon">🦉</div>
+        <div class="animal-title" id="resTitle">智者貓頭鷹奧利</div>
+        <div class="badge" id="resTag">細心嚴謹 × 追求完美</div>
+
+        <div class="section-box" style="border-left-color: #4CAF50;">
+            <h3>✨ 你的特質超能力</h3>
+            <p id="resPower">觀察非常入微，做事調理分明，總是可以發現大家忽略的關鍵細節！</p>
+        </div>
+
+        <div class="section-box" style="border-left-color: #FF9800;">
+            <h3>💡 溫馨小提醒</h3>
+            <p id="resTip">有時候太過追求完美會讓自己壓力很大，試著相信「完成比完美更重要」喔！</p>
+        </div>
+
+        <div class="section-box" style="border-left-color: #2196F3;">
+            <h3>🎛️ 特質等化器調節建議</h3>
+            <p id="resAction">啟動「85分停損點」！當完成度達到 85 分時，就給自己一個大大的讚並放手吧！</p>
+        </div>
+
+        <button class="restart-btn" onclick="restartQuiz()">🔄 再測一次</button>
+    </div>
+</div>
+
+<!-- 30張特質卡片探索區塊 -->
+<div class="traits-section" id="traitsSection">
+    <div class="traits-header">
+        <h2>🔍 探索特質的多面體 (30張翻翻卡)</h2>
+        <p>每一種特質都像一顆寶石，點擊卡片看看它們在不同情境下的「一體兩面」吧！</p>
+        <div class="legend">
+            <div class="legend-item"><span class="dot-green"></span> 正面特質</div>
+            <div class="legend-item"><span class="dot-orange"></span> 兩極化特質</div>
+        </div>
+    </div>
+
+    <!-- 卡片容器 -->
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <!-- 展開/收合按鈕 -->
+    <div class="action-bar">
+        <button class="expand-btn" id="toggleCardsBtn" onclick="toggleCards()">👇 展開全部 30 張特質卡片</button>
+    </div>
+</div>
+
+<script>
+    // 1. 測驗題目資料
+    const questions = [
+        {
+            q: "1. 老師宣佈這學期要進行「自主研究專題」，你的第一反應是？",
+            options: [
+                { text: "A. 立即擬定計畫，但很擔心成果不夠完美怎麼辦。", type: "A" },
+                { text: "B. 太棒了！馬上想到好幾個點子，好想立刻動手做！", type: "B" },
+                { text: "C. 默默觀察大家，心裡有點緊張，擔心找不到組員。", type: "C" },
+                { text: "D. 按照自己的步調，一步一步開始收集資料。", type: "D" }
+            ]
+        },
+        {
+            q: "2. 小組分工合作時，你最常扮演的角色是？",
+            options: [
+                { text: "A. 檢查大師：審視細節，確保交出去的作品零瑕疵。", type: "A" },
+                { text: "B. 衝鋒隊長：帶頭衝、分配任務，覺得討論太慢就想直接做。", type: "B" },
+                { text: "C. 貼心傾聽者：關注大家感受，協調組內氣氛。", type: "C" },
+                { text: "D. 實幹工程師：默默承擔最繁重、需要耐心的部分。", type: "D" }
+            ]
+        },
+        {
+            q: "3. 當你辛苦完成的作品被同學指出缺點時，你會？",
+            options: [
+                { text: "A. 非常沮喪，心裡耿耿於懷，很想全部重做一遍。", type: "A" },
+                { text: "B. 有點火大，會立刻反駁或想快點修正繼續往前走。", type: "B" },
+                { text: "C. 心裡很受傷，覺得自己不夠好，想把自己縮起來。", type: "C" },
+                { text: "D. 堅持原本想法，覺得對方不懂我的用心。", type: "D" }
+            ]
+        },
+        {
+            q: "4. 下課時間，你最喜歡的休息方式是？",
+            options: [
+                { text: "A. 在座位上整理東西、看書，把下一節課準備好。", type: "A" },
+                { text: "B. 衝去操場打球跑跳，或玩需要快速反應的遊戲。", type: "B" },
+                { text: "C. 和一兩個知心好友聊天，或獨自享受安靜時間。", type: "C" },
+                { text: "D. 專注做自己最近很沉迷的事情（如畫圖、摺紙）。", type: "D" }
+            ]
+        },
+        {
+            q: "5. 遇到從來沒學過的新挑戰時，你會？",
+            options: [
+                { text: "A. 先把規則完全弄懂才敢開始，很怕做錯。", type: "A" },
+                { text: "B. 先做了再說！在嘗試與錯誤中快速學習。", type: "B" },
+                { text: "C. 先觀察別人怎麼做，確認安全、不尷尬才敢試。", type: "C" },
+                { text: "D. 一旦決定要學，就會每天花時間練習，絕不放棄。", type: "D" }
+            ]
+        },
+        {
+            q: "6. 朋友覺得你最大的優點是？",
+            options: [
+                { text: "A. 很可靠、做事仔細，交給你的事情總是讓人放心。", type: "A" },
+                { text: "B. 很有效率、很有點子與活力，跟你在一起不無聊。", type: "B" },
+                { text: "C. 很溫柔、善解人意，總是能注意到別人的小情緒。", type: "C" },
+                { text: "D. 很踏實、有耐性，答應別人的事一定堅持做到最後。", type: "D" }
+            ]
+        }
+    ];
+
+    // 2. 測驗結果資料
+    const results = {
+        A: {
+            icon: "🦉",
+            title: "智者貓頭鷹 奧利",
+            tag: "細心嚴謹 × 分析力強 × 追求卓越",
+            power: "你的觀察非常入微，邏輯條理分明！任何細小的錯誤都逃不過你的火眼金睛，交給你的任務總是令人無比放心。",
+            tip: "完美主義有時候會讓你感到焦慮或累壞自己。記得『完成比完美更重要』，偶爾允許自己有一點小瑕疵也沒關係！",
+            action: "🎛️ 開啟【85分停損點旋鈕】：當任務做到 85 分時，告訴自己『這樣已經很讚了！』並放心交出去。"
+        },
+        B: {
+            icon: "🐆",
+            title: "敏捷獵豹 奇奇",
+            tag: "反應敏捷 × 充滿幹勁 × 果斷有行動力",
+            power: "你的大腦反應極快、點子多且充滿活力！當大家還在猶豫時，你已經跨出第一步帶領大家往前衝了。",
+            tip: "因為你衝得很快，有時候可能會對步調較慢的同學感到急躁，或者因為衝太快而忽略了細節喔！",
+            action: "🎛️ 開啟【3秒暫停鍵旋鈕】：發言或行動前停頓 3 秒，聽聽看身邊夥伴的想法，團隊會更圓融！"
+        },
+        C: {
+            icon: "🦔",
+            title: "細膩刺蝟 波波",
+            tag: "觀察敏銳 × 同理心高 × 感情豐富",
+            power: "你有著非常溫柔細緻的心靈，能夠靈敏地覺察到身邊人的情緒變化，是大家心中最溫暖、最善解人意的傾聽者。",
+            tip: "因為心靈很敏銳，有時容易把別人的無心發言或情緒當成自己的錯，讓你感到受傷或想躲起來。",
+            action: "🎛️ 開啟【能量防護罩旋鈕】：練習把『別人的評價』與『自己的價值』分開，記得你本身就非常棒！"
+        },
+        D: {
+            icon: "🦫",
+            title: "毅力海狸 貝貝",
+            tag: "踏實專注 × 有始有終 × 抗壓性強",
+            power: "你有著超乎常人的耐性與毅力！一旦設定了目標，不論遇到什麼困難都會一步一腳印地堅持做完。",
+            tip: "因為你非常堅持原則，有時候在需要彈性變通或與他人協商時，可能會讓人覺得稍微有點固執喔！",
+            action: "🎛️ 開啟【軟化彈性旋鈕】：當計畫遇到突發改變時，深呼吸一口氣，試著跟夥伴一起討論『備案 B』！"
+        }
+    };
+
+    // 3. 30 個特質卡片資料
+    const traitsData = [
+        { icon: "🔍", fTitle: "細心", fDesc: "做事謹慎仔細，能注意到大家都忽略的小細節。", bTitle: "細心 / 完美主義", bDesc: "有時太過挑剔、追求零缺點而讓自己或他人壓力很大。" },
+        { icon: "⚡", fTitle: "果斷", fDesc: "遇到事情能快速做決定，不拖泥帶水。", bTitle: "果斷 / 衝動", bDesc: "有時因為想得太快，在沒弄清楚狀況前就做決定。" },
+        { icon: "🍃", fTitle: "沉靜", fDesc: "安靜穩重，做事情能沉得住氣、專心思考。", bTitle: "沉靜 / 孤僻", bDesc: "有時顯得太過被動，或不喜歡、不習慣與人交流。" },
+        { icon: "🤣", fTitle: "幽默", fDesc: "風趣好笑，總能帶給大家快樂、緩和氣氛。", bTitle: "幽默 / 不嚴肅", bDesc: "有時開玩笑沒分寸，或在需要認真的場景顯得不莊重。" },
+        { icon: "🏃", fTitle: "活潑", fDesc: "充滿活力，樂於參與活動且能帶動熱烈氣氛。", bTitle: "活潑 / 好動坐不住", bDesc: "精力旺盛，在需要安靜專注時容易分心或打擾他人。" },
+        { icon: "🤝", fTitle: "熱心", fDesc: "主動幫助他人，對團體的事情很有服務熱忱。", bTitle: "熱心 / 好管閒事", bDesc: "有時會過度介入別人的私事，反而造成對方的困擾。" },
+        { icon: "🔥", fTitle: "積極", fDesc: "主動積極，面對任務總是迫不及待想嘗試。", bTitle: "積極 / 急躁", bDesc: "凡事要求快點看到成果，有時會失去耐心、亂了步調。" },
+        { icon: "🎨", fTitle: "有創意", fDesc: "點子很多，常常有令人驚喜的新奇想法。", bTitle: "有創意 / 不切實際", bDesc: "有時想法過於天馬行空，不夠考慮現實或難以落實執行。" },
+        { icon: "🧱", fTitle: "踏實", fDesc: "一步一腳印，會認真把交代的任務做好。", bTitle: "踏實 / 固執", bDesc: "有時太墨守成規、不習慣改變，顯得有些不夠變通。" },
+        { icon: "🛡️", fTitle: "勇敢", fDesc: "不怕困難與挑戰，願意挺身嘗試新事物。", bTitle: "勇敢 / 魯莽", bDesc: "有時衝得太快，忽略了可能存在的危險或沒做好準備。" },
+        { icon: "👂", fTitle: "隨和", fDesc: "很好相處，樂意配合大家的意見與安排。", bTitle: "隨和 / 沒主見", bDesc: "習慣順從他人，有時會壓抑自己的想法、不敢表達。" },
+        { icon: "🎯", fTitle: "專注", fDesc: "能沉浸在自己在意的事情中，不受外界干擾。", bTitle: "專注 / 沉迷", bDesc: "有時太過投入自己的世界，會忽略身邊的人事物與作息。" },
+        { icon: "👑", fTitle: "有主見", fDesc: "很有自己的看法，能堅定表達自己的觀點。", bTitle: "有主見 / 強勢", bDesc: "有時太想說服別人，顯得難以溝通、不易妥協。" },
+        { icon: "💬", fTitle: "外向", fDesc: "喜歡跟人聊天，能很快與陌生人打成一片。", bTitle: "外向 / 話太多", bDesc: "有時急著分享或發表意見，忽略了要先聆聽別人說話。" },
+        { icon: "🕯️", fTitle: "體貼", fDesc: "心思細膩，能注意到身邊人的心情與需要。", bTitle: "體貼 / 敏感多慮", bDesc: "太容易被旁人的情緒影響，或因為別人一句話而難過很久。" },
+        { icon: "👑", fTitle: "自信", fDesc: "相信自己的能力，在大家面前展現自己不害羞。", bTitle: "自信 / 驕傲", bDesc: "有時可能顯得自負、聽不進別人的建議或忽視他人優點。" },
+        { icon: "🌱", fTitle: "溫和", fDesc: "說話輕聲細語，不愛跟人發生衝突，態度友善。", bTitle: "溫和 / 軟弱", bDesc: "面對不合理的事情時容易退讓，不敢大膽為自己爭取。" },
+        { icon: "🚀", fTitle: "求勝心強", fDesc: "想把事情做到最好，渴望獲得好成績與進步。", bTitle: "求勝心 / 輸不起", bDesc: "太在意輸贏，在失敗或表現不如預期時容易感到挫折生氣。" },
+        { icon: "🧭", fTitle: "守秩序", fDesc: "能遵守團體規範，做事有規律且讓人放心。", bTitle: "守秩序 / 刻板", bDesc: "太過依賴規則，一旦計畫生變或遇到突發狀況時容易焦慮。" },
+        { icon: "🧩", fTitle: "獨立", fDesc: "能自己完成事情，不需要依賴別人。", bTitle: "獨立 / 孤軍奮戰", bDesc: "遇到自己無法解決的困難時，也硬撐著不願意開口求助。" },
+        { icon: "⚖️", fTitle: "客觀", fDesc: "理性看待事情，不偏袒，會思考多方的立場。", bTitle: "客觀 / 冷淡", bDesc: "在別人需要情感支持或安慰時，顯得太過理智、不夠溫暖。" },
+        { icon: "🐾", fTitle: "有耐心", fDesc: "願意花時間等待，不急躁，能包容別人的慢。", bTitle: "有耐心 / 沒效率", bDesc: "有時候進度過於緩慢，或是對需要快速反應的任務抓不到重點。" },
+        { icon: "📣", fTitle: "正義感", fDesc: "看不慣不公平的事，願意為弱者發聲或糾正錯誤。", bTitle: "正義感 / 愛糾紛", bDesc: "有時管得太寬、太常檢舉或糾正別人，容易與同學起衝突。" },
+        { icon: "🌻", fTitle: "樂觀", fDesc: "總看事情好的一面，遇到挫折能很快調適。", bTitle: "樂觀 / 粗心大意", bDesc: "有時想得太美好，忽略了可能出錯的地方或沒做備份準備。" },
+        { icon: "📜", fTitle: "重感情", fDesc: "非常珍惜朋友與團體，願意為友情付出許多。", bTitle: "重感情 / 講義氣", bDesc: "有時為了護短、不破壞友誼，而跟著朋友做不對的事。" },
+        { icon: "📐", fTitle: "有條理", fDesc: "能把書包、座位或任務規劃得井井有條、整整齊齊。", bTitle: "有條理 / 強迫傾向", bDesc: "一旦東西被移動或不照順序，就會感到非常煩躁或生氣。" },
+        { icon: "🦋", fTitle: "好奇心", fDesc: "對未知事物充滿熱情，樂於探索新奇知識。", bTitle: "好奇心 / 沒定性", bDesc: "興趣多但容易三分鐘熱度，這想學、那想看，卻難以堅持。" },
+        { icon: "⚓", fTitle: "有責任感", fDesc: "答應的事情一定盡力做到，是大家眼中的靠山。", bTitle: "責任感 / 壓力超載", bDesc: "把所有事情都攬在自己身上，容易讓自己身心俱疲。" },
+        { icon: "✨", fTitle: "大方", fDesc: "樂於分享自己的東西或讚美，不計較小地方。", bTitle: "大方 / 沒界線", bDesc: "有時不懂得保護自己的資源、時間或隱私，容易被忽視。" },
+        { icon: "🕊️", fTitle: "愛好和平", fDesc: "擅長協調，不喜歡衝突，希望能讓大家都高興。", bTitle: "和平 / 逃避問題", bDesc: "為了表面和諧，在問題發生時選擇假裝沒看到或不敢面對。" }
+    ];
+
+    let currentQ = 0;
+    let scores = { A: 0, B: 0, C: 0, D: 0 };
+    let isExpanded = false;
+
+    // 渲染題目
+    function renderQuestion() {
+        const quizBox = document.getElementById("quizSection");
+        const qData = questions[currentQ];
+
+        let html = `
+            <div class="question-card active">
+                <div class="question-title">${qData.q}</div>
+                <div class="options-list">
+        `;
+
+        qData.options.forEach(opt => {
+            html += `<button class="option-btn" onclick="selectOption('${opt.type}')">${opt.text}</button>`;
+        });
+
+        html += `</div></div>`;
+        quizBox.innerHTML = html;
+
+        const progressPercent = ((currentQ + 1) / questions.length) * 100;
+        document.getElementById("progressFill").style.width = progressPercent + "%";
+    }
+
+    // 選擇答案
+    function selectOption(type) {
+        scores[type]++;
+        currentQ++;
+
+        if (currentQ < questions.length) {
+            renderQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // 顯示結果與下方卡片區
+    function showResult() {
+        document.getElementById("quizSection").style.display = "none";
+        document.getElementById("progressBar").style.display = "none";
+
+        let highestType = "A";
+        let maxScore = -1;
+        for (let type in scores) {
+            if (scores[type] > maxScore) {
+                maxScore = scores[type];
+                highestType = type;
+            }
+        }
+
+        const res = results[highestType];
+        document.getElementById("resIcon").innerText = res.icon;
+        document.getElementById("resTitle").innerText = res.title;
+        document.getElementById("resTag").innerText = res.tag;
+        document.getElementById("resPower").innerText = res.power;
+        document.getElementById("resTip").innerText = res.tip;
+        document.getElementById("resAction").innerText = res.action;
+
+        document.getElementById("resultSection").classList.add("active");
+        
+        // 開啟特質卡片區域（預設載入前6張）
+        document.getElementById("traitsSection").classList.add("active");
+        renderTraitsCards(6);
+    }
+
+    // 渲染特質翻翻卡
+    function renderTraitsCards(limit) {
+        const grid = document.getElementById("cardsGrid");
+        grid.innerHTML = "";
+
+        const listToRender = limit ? traitsData.slice(0, limit) : traitsData;
+
+        listToRender.forEach(item => {
+            const cardScene = document.createElement("div");
+            cardScene.className = "card-scene";
+            cardScene.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-face card-front">
+                        <div class="card-icon">${item.icon}</div>
+                        <div class="card-title">${item.fTitle}</div>
+                        <div class="card-desc">${item.fDesc}</div>
+                        <div class="card-hint">👆 點擊看另一面</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-icon">${item.icon}</div>
+                        <div class="card-title">${item.bTitle}</div>
+                        <div class="card-desc">${item.bDesc}</div>
+                        <div class="card-hint">👆 點擊回正面</div>
+                    </div>
+                </div>
+            `;
+            cardScene.addEventListener("click", () => {
+                cardScene.classList.toggle("is-flipped");
+            });
+            grid.appendChild(cardScene);
+        });
+    }
+
+    // 切換展開 / 收合全部卡片
+    function toggleCards() {
+        const btn = document.getElementById("toggleCardsBtn");
+        if (!isExpanded) {
+            renderTraitsCards(null); // 渲染全部 30 張
+            btn.innerText = "👆 收合至 6 張卡片";
+            isExpanded = true;
+        } else {
+            renderTraitsCards(6); // 僅渲染前 6 張
+            btn.innerText = "👇 展開全部 30 張特質卡片";
+            isExpanded = false;
+        }
+    }
+
+    // 重新開始測驗
+    function restartQuiz() {
+        currentQ = 0;
+        scores = { A: 0, B: 0, C: 0, D: 0 };
+        isExpanded = false;
+        document.getElementById("toggleCardsBtn").innerText = "👇 展開全部 30 張特質卡片";
+        
+        document.getElementById("resultSection").classList.remove("active");
+        document.getElementById("traitsSection").classList.remove("active");
+        document.getElementById("quizSection").style.display = "block";
+        document.getElementById("progressBar").style.display = "block";
+        renderQuestion();
+    }
+
+    // 初始化測驗
+    renderQuestion();
+</script>
+
+</body>
+</html>
